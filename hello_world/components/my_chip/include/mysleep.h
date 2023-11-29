@@ -4,7 +4,6 @@
 void gpio_irq_acc_handler_task(void* arg);
 void sleep_mode_task(void* arg);
 void resetFreeGpioInit();
-void SleepModeTaskTrigger(uint8_t b);
 
 //EXT0
 #define ETX0_INPUT_PIN 2

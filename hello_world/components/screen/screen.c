@@ -71,9 +71,9 @@ static void __qsmd_rgb_disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area
 void qmsd_rgb_init(esp_lcd_rgb_panel_config_t *panel_config)
 {
     static lv_disp_drv_t disp_drv; //一旦缓冲区初始化准备好，lv_disp_drv_t 显示驱动程序需要
-    int buffer_size;
-    void *buf1 = NULL;
-    void *buf2 = NULL;
+    int buffer_size=800*40;
+    void *buf1 = heap_caps_malloc(buffer_size* sizeof(lv_color_t),MALLOC_CAP_DMA);
+    void *buf2 = heap_caps_malloc(buffer_size* sizeof(lv_color_t),MALLOC_CAP_DMA);;
     static lv_disp_draw_buf_t draw_buf;
 
     lv_init();
@@ -83,10 +83,10 @@ void qmsd_rgb_init(esp_lcd_rgb_panel_config_t *panel_config)
     ESP_ERROR_CHECK(esp_lcd_panel_init(g_panel_handle));
 
 
-    buffer_size = panel_config->timings.h_res * panel_config->timings.v_res;
-    esp_lcd_rgb_panel_get_frame_buffer(g_panel_handle, 2, &buf1, &buf2);
-    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, buffer_size);
+//buffer_size = panel_config->timings.h_res * panel_config->timings.v_res;
     
+    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, buffer_size);
+    esp_lcd_rgb_panel_get_frame_buffer(g_panel_handle, 2, &buf1, &buf2);
     /**
      * Display driver（显示驱动程序）
      * 
@@ -96,8 +96,9 @@ void qmsd_rgb_init(esp_lcd_rgb_panel_config_t *panel_config)
     disp_drv.draw_buf = &draw_buf;
     disp_drv.hor_res = panel_config->timings.h_res;     // 显示器的水平分辨率（以像素为单位）。
     disp_drv.ver_res = panel_config->timings.v_res;     // 显示器的垂直分辨率（以像素为单位）。
-    disp_drv.full_refresh = 1;
-
+    //disp_drv.full_refresh = 1;
+    disp_drv.user_data = g_panel_handle;
+    
     lv_disp_drv_register(&disp_drv);                    
 }
 
@@ -192,9 +193,8 @@ void screen_trigger(bool mode){
     ledc_pwm_update_duty(action*8191);
 }
 static void increase_lvgl_tick(void* arg) {
-    if(task_ctl_stru.SLEEP_MODE_TRIGGER==0){
         lv_tick_inc(portTICK_PERIOD_MS);
-    }  
+  
 }
 
 void lvgl_task(void* arg) {

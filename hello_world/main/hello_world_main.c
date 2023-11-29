@@ -38,5 +38,4 @@ void app_main(void)
     printf("Hello world!\n");
     xTaskCreate(sleep_mode_task, "sleep_mode_task", 4096 * 4, NULL, 3,&sleep_mode_handle);  //kxcj91008_test
     xTaskCreate(lvgl_task,"lvgl_task",8 * 2048, NULL,3,&lvgl_handle);
-    SleepModeTaskTrigger(0);
 }
